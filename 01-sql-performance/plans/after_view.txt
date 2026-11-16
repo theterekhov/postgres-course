@@ -1,0 +1,11 @@
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Index Scan using user_message_stats_received_idx on user_message_stats  (cost=0.29..7060.96 rows=199998 width=37) (actual time=0.010..35.209 rows=199998.00 loops=1)
+   Index Searches: 1
+   Buffers: shared hit=33814
+ Planning:
+   Buffers: shared hit=102
+ Planning Time: 0.186 ms
+ Execution Time: 39.719 ms
+(7 rows)
+

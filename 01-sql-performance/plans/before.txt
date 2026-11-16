@@ -1,0 +1,45 @@
+                                                                              QUERY PLAN                                                                              
+----------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=406502.19..407002.19 rows=200000 width=37) (actual time=1141.235..1151.883 rows=199998.00 loops=1)
+   Sort Key: (count(m.id)) DESC
+   Sort Method: external merge  Disk: 9992kB
+   Buffers: shared hit=15120 read=38139 written=179, temp read=14966 written=22901
+   ->  Finalize GroupAggregate  (cost=323118.14..383422.05 rows=200000 width=37) (actual time=1026.768..1112.673 rows=199998.00 loops=1)
+         Group Key: u.id
+         Buffers: shared hit=15117 read=38139 written=179, temp read=13717 written=21649
+         ->  Gather Merge  (cost=323118.14..379022.05 rows=480000 width=37) (actual time=1026.730..1076.260 rows=588455.00 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=15117 read=38139 written=179, temp read=13717 written=21649
+               ->  Sort  (cost=322118.11..322618.11 rows=200000 width=37) (actual time=1016.801..1029.640 rows=196151.67 loops=3)
+                     Sort Key: u.id
+                     Sort Method: external merge  Disk: 9808kB
+                     Buffers: shared hit=15117 read=38139 written=179, temp read=13717 written=21649
+                     Worker 0:  Sort Method: external merge  Disk: 9800kB
+                     Worker 1:  Sort Method: external merge  Disk: 9800kB
+                     ->  Partial HashAggregate  (cost=264485.49..299037.97 rows=200000 width=37) (actual time=894.679..977.274 rows=196151.67 loops=3)
+                           Group Key: u.id
+                           Planned Partitions: 4  Batches: 5  Memory Usage: 8249kB  Disk Usage: 28008kB
+                           Buffers: shared hit=15103 read=38139 written=179, temp read=10041 written=17964
+                           Worker 0:  Batches: 5  Memory Usage: 8249kB  Disk Usage: 27880kB
+                           Worker 1:  Batches: 5  Memory Usage: 8249kB  Disk Usage: 27984kB
+                           ->  Parallel Hash Join  (cost=4342.06..82191.57 rows=2083359 width=37) (actual time=18.825..571.397 rows=1666666.67 loops=3)
+                                 Hash Cond: (m.to_user_id = u.id)
+                                 Buffers: shared hit=15103 read=38139 written=179
+                                 ->  Parallel Seq Scan on messages m  (cost=0.00..72380.59 rows=2083359 width=12) (actual time=0.111..65.232 rows=1666666.67 loops=3)
+                                       Buffers: shared hit=13408 read=38139 written=179
+                                 ->  Parallel Hash  (cost=2871.47..2871.47 rows=117647 width=29) (actual time=18.432..18.433 rows=66666.67 loops=3)
+                                       Buckets: 262144  Batches: 1  Memory Usage: 14816kB
+                                       Buffers: shared hit=1695
+                                       ->  Parallel Seq Scan on users u  (cost=0.00..2871.47 rows=117647 width=29) (actual time=4.196..7.827 rows=66666.67 loops=3)
+                                             Buffers: shared hit=1695
+ Planning:
+   Buffers: shared hit=147
+ Planning Time: 0.504 ms
+ JIT:
+   Functions: 66
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 1.851 ms (Deform 0.594 ms), Inlining 0.000 ms, Optimization 1.475 ms, Emission 18.426 ms, Total 21.751 ms
+ Execution Time: 1173.509 ms
+(41 rows)
+

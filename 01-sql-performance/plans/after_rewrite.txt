@@ -1,0 +1,41 @@
+                                                                                                  QUERY PLAN                                                                                                   
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=108778.69..108945.89 rows=66879 width=37) (actual time=350.369..359.272 rows=199998.00 loops=1)
+   Sort Key: s.received_messages DESC
+   Sort Method: external merge  Disk: 10000kB
+   Buffers: shared hit=401184 read=20853, temp read=2845 written=3200
+   ->  Hash Join  (cost=98126.43..102346.44 rows=66879 width=37) (actual time=260.973..325.752 rows=199998.00 loops=1)
+         Hash Cond: (u.id = s.to_user_id)
+         Buffers: shared hit=401181 read=20853, temp read=1595 written=1947
+         ->  Seq Scan on users u  (cost=0.00..3695.00 rows=200000 width=29) (actual time=0.010..7.051 rows=200000.00 loops=1)
+               Buffers: shared hit=2 read=1693
+         ->  Hash  (cost=97290.44..97290.44 rows=66879 width=12) (actual time=260.741..260.822 rows=199998.00 loops=1)
+               Buckets: 262144 (originally 131072)  Batches: 2 (originally 1)  Memory Usage: 6358kB
+               Buffers: shared hit=401179 read=19160, temp read=462 written=1203
+               ->  Subquery Scan on s  (cost=95952.86..97290.44 rows=66879 width=12) (actual time=201.945..242.328 rows=199998.00 loops=1)
+                     Buffers: shared hit=401179 read=19160, temp read=462 written=814
+                     ->  Finalize HashAggregate  (cost=95952.86..96621.65 rows=66879 width=12) (actual time=201.942..232.919 rows=199998.00 loops=1)
+                           Group Key: messages.to_user_id
+                           Batches: 5  Memory Usage: 8249kB  Disk Usage: 3800kB
+                           Buffers: shared hit=401179 read=19160, temp read=462 written=814
+                           ->  Gather  (cost=1000.43..95150.31 rows=160510 width=12) (actual time=9.435..167.823 rows=216636.00 loops=1)
+                                 Workers Planned: 2
+                                 Workers Launched: 2
+                                 Buffers: shared hit=401179 read=19160
+                                 ->  Partial GroupAggregate  (cost=0.43..78099.31 rows=66879 width=12) (actual time=4.088..174.788 rows=72212.00 loops=3)
+                                       Group Key: messages.to_user_id
+                                       Buffers: shared hit=401179 read=19160
+                                       ->  Parallel Index Only Scan using messages_to_user_id_idx on messages  (cost=0.43..67013.73 rows=2083359 width=4) (actual time=0.029..115.022 rows=1666666.67 loops=3)
+                                             Heap Fetches: 0
+                                             Index Searches: 1
+                                             Buffers: shared hit=401179 read=19160
+ Planning:
+   Buffers: shared hit=122 read=16
+ Planning Time: 0.545 ms
+ JIT:
+   Functions: 29
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.835 ms (Deform 0.144 ms), Inlining 0.000 ms, Optimization 0.671 ms, Emission 8.451 ms, Total 9.957 ms
+ Execution Time: 374.926 ms
+(37 rows)
+

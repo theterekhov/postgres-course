@@ -1,0 +1,36 @@
+                                                                                              QUERY PLAN                                                                                               
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Sort  (cost=252593.94..253093.94 rows=200000 width=37) (actual time=466.157..476.771 rows=199998.00 loops=1)
+   Sort Key: (count(m.id)) DESC
+   Sort Method: external merge  Disk: 9992kB
+   Buffers: shared hit=407720 read=19160, temp read=1249 written=1252
+   ->  Finalize GroupAggregate  (cost=1000.88..229513.80 rows=200000 width=37) (actual time=56.572..430.227 rows=199998.00 loops=1)
+         Group Key: u.id
+         Buffers: shared hit=407717 read=19160
+         ->  Gather Merge  (cost=1000.88..225113.80 rows=480000 width=37) (actual time=56.450..402.180 rows=215933.00 loops=1)
+               Workers Planned: 2
+               Workers Launched: 2
+               Buffers: shared hit=407717 read=19160
+               ->  Partial GroupAggregate  (cost=0.85..168709.86 rows=200000 width=37) (actual time=6.745..310.727 rows=71977.67 loops=3)
+                     Group Key: u.id
+                     Buffers: shared hit=407717 read=19160
+                     ->  Merge Join  (cost=0.85..156293.07 rows=2083359 width=37) (actual time=3.350..246.598 rows=1666666.67 loops=3)
+                           Merge Cond: (m.to_user_id = u.id)
+                           Buffers: shared hit=407717 read=19160
+                           ->  Parallel Index Only Scan using messages_to_user_id_idx on messages m  (cost=0.43..122850.32 rows=2083359 width=12) (actual time=0.030..107.695 rows=1666666.67 loops=3)
+                                 Heap Fetches: 0
+                                 Index Searches: 1
+                                 Buffers: shared hit=400989 read=19157
+                           ->  Index Scan using users_pkey on users u  (cost=0.42..6902.42 rows=200000 width=29) (actual time=0.025..17.619 rows=199906.00 loops=3)
+                                 Index Searches: 3
+                                 Buffers: shared hit=6728 read=3
+ Planning:
+   Buffers: shared hit=164 read=7
+ Planning Time: 0.402 ms
+ JIT:
+   Functions: 27
+   Options: Inlining false, Optimization false, Expressions true, Deforming true
+   Timing: Generation 0.759 ms (Deform 0.190 ms), Inlining 0.000 ms, Optimization 0.647 ms, Emission 9.255 ms, Total 10.661 ms
+ Execution Time: 493.422 ms
+(32 rows)
+
